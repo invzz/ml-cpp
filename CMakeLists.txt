@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 3.1...3.28)
 
-project(KNN VERSION  0.5 LANGUAGES C)
+project(MNIST VERSION  0.5 LANGUAGES CXX)
 
-add_definitions(-DTRAIN_PATH="${PROJECT_SOURCE_DIR}/resources/train.csv")
-add_definitions(-DTEST_PATH="${PROJECT_SOURCE_DIR}/resources/test.csv")
-add_definitions(-DKNN_BUFFER_SIZE=8096)
 
 include(cmake/automate-vcpkg.cmake)
 vcpkg_bootstrap()
@@ -17,6 +14,7 @@ ELSE()
 ENDIF()
     
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/dist)
+
 include(cmake/init.cmake)
 include(cmake/folders.cmake)
 include(cmake/targets.cmake)

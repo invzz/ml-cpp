@@ -5,7 +5,7 @@ THIS_DIR="$(dirname "$THIS_PATH")"
 
 # Find all files in THIS_DIR which end in .ino, .cpp, etc., as specified
 # in the regular expression just below
-FILE_LIST="$(find "$THIS_DIR" -not -path '*/build/*' | grep -E ".*(\.ino|\.cpp|\.c|\.h|\.hpp|\.hh)$")"
+FILE_LIST="$(find "$THIS_DIR" -not -path '*/build/*' | grep -E ".*(\.ino|\.cpp|\.cc|\.c|\.h|\.hpp|\.hh)$")"
 
 echo -e "Files found to format = \n\"\"\"\n$FILE_LIST\n\"\"\""
 
