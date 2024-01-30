@@ -39,6 +39,8 @@ class data_handler
   std::vector<data *> *get_training_data();
   std::vector<data *> *get_testing_data();
   std::vector<data *> *get_validation_data();
-};
 
+  private:
+  void fill_random(std::vector<data *> *vec, int num_samples, std::unordered_set<int> *used_indexes);
+};
 #endif
