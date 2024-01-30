@@ -140,8 +140,7 @@ void mnist::fill_random(std::vector<data *> *vec, int num_samples, std::unordere
         {
           printf("\rFilling random: [ %d/%d ] used indexes count [%d]", count + 1, num_samples,
                  (int)used_indexes->size());
-          printf(" : Element at %d already there! [%d / %d] - [%d]  ", rnd_index, count + 1, num_samples,
-                 (int)used_indexes->size());
+          printf(" : skipped [%d / %d] - [%d]  ", rnd_index, count + 1, num_samples, (int)used_indexes->size());
           continue;
         }
     }
@@ -155,9 +154,9 @@ void mnist::split_data()
 
   std::unordered_set<int> used_indexes;
 
-  fill_random(testing_data, num_testing, &used_indexes);
-  fill_random(training_data, num_training, &used_indexes);
   fill_random(validation_data, num_valid, &used_indexes);
+  fill_random(training_data, num_training, &used_indexes);
+  fill_random(testing_data, num_testing, &used_indexes);
 
   printf("\33[2K\r");
   printf("\rDone splitting data.");

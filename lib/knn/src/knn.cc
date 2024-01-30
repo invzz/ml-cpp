@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <execution>
 #include <thread>
+#include <chrono>
+
 #include "stdint.h"
 #include "mnist_handler.hh"
 
@@ -134,10 +136,15 @@ double knn::calculate_distance(data *query_point, data *input)
 
 double knn::compute_performance(std::vector<data *> *d)
 {
-  int correct = 0.0;
-  int parsed  = 0.0;
+  int    correct                = 0.0;
+  int    parsed                 = 0.0;
+  int    iterations_per_second  = 0;
+  double elapsed_seconds        = 0;
+  double last_remaining_seconds = std::numeric_limits<double>::max();
+
   for(data *qp : *d)
     {
+      auto start_time = std::chrono::high_resolution_clock::now();
       find_k_nearest_neighbors(qp);
       int prediction = predict();
       if(prediction == qp->get_label()) { correct += 1; }
@@ -146,8 +153,22 @@ double knn::compute_performance(std::vector<data *> *d)
       printf("\rPrediction: [ %d ] :: Actual: [ %d ] :: ", prediction, qp->get_label());
       printf("Accuracy: [ %.3f %% ] :: ", ((double)correct / (double)parsed) * 100.0);
       printf("Progress: [ %.3f %% ] ", ((double)parsed / (double)d->size()) * 100.0);
+      printf(":: [ %d / %zu ]", parsed, d->size());
+      printf(" :: k: [ %d ]", k);
+
+      auto end_time          = std::chrono::high_resolution_clock::now();
+      elapsed_seconds        = std::chrono::duration<double>(end_time - start_time).count();
+      auto remaining_seconds = (d->size() - parsed) * elapsed_seconds;
+      if(remaining_seconds < last_remaining_seconds)
+        {
+          printf(" :: remaining : [ %.2f s]", remaining_seconds);
+          last_remaining_seconds = remaining_seconds;
+        }
+      else { printf(" :: remaining : [ %.2f s]", last_remaining_seconds); }
+
       fflush(stdout);
     }
+
   printf("\33[2K\r");
   printf("\r[ Completed - k: [ %d ] ] :: Accuracy : [ %.3f %% ] \n", k, ((double)correct / (double)d->size()) * 100.0);
   return ((double)correct / (double)d->size());
@@ -155,3 +176,5 @@ double knn::compute_performance(std::vector<data *> *d)
 
 double knn::compute_test_performance() { return compute_performance(test_data); }
 double knn::compute_validation_performance() { return compute_performance(validation_data); }
+
+// 10 e/s , 100 e
