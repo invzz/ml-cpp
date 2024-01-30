@@ -1,11 +1,6 @@
 #ifndef _H_KNN_
 #define _H_KNN_
 
-#ifndef NUM_OF_THREADS
-#define NUM_OF_THREADS 20
-#endif
-
-
 #include "data.hh"
 #include <mutex>
 #include <vector>

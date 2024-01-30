@@ -10,9 +10,7 @@
 
 class mnist
 {
-  const double TRAIN_SET_PERCENT      = 0.75;
-  const double TEST_SET_PERCENT       = 0.20;
-  const double VALIDATION_SET_PERCENT = 0.05;
+
 
   std::vector<data *> *data_array;      // all of the data before splitting
   std::vector<data *> *training_data;   // training data

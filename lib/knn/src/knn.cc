@@ -7,7 +7,6 @@
 #include <thread>
 #include "stdint.h"
 #include "mnist_handler.hh"
-#include "thread_queue.hh"
 
 double euclidean_distance(data *query_point, data *input)
 {
@@ -49,11 +48,10 @@ void knn::find_k_nearest_neighbors(data *d)
     return euclidean_distance(d1, d2);
   };
 
-
   // Split the loop into chunks for each thread
-  const unsigned chunk_size = training_data->size() / NUM_OF_THREADS;
+  const unsigned chunk_size = training_data->size() / KNN_NUM_OF_THREADS;
   // Calculate the chunk size and the number of remaining elements
-  const unsigned remaining_elements = training_data->size() % NUM_OF_THREADS;
+  const unsigned remaining_elements = training_data->size() % KNN_NUM_OF_THREADS;
   // Vector to store threads
   std::vector<std::thread> threads;
   // Mutex for protecting vector modifications
@@ -62,7 +60,7 @@ void knn::find_k_nearest_neighbors(data *d)
   unsigned start = 0;
 
   // Using std::for_each with parallel execution policy
-  for(unsigned t = 0; t < NUM_OF_THREADS; ++t)
+  for(unsigned t = 0; t < KNN_NUM_OF_THREADS; ++t)
     {
       unsigned end = start + chunk_size + (t < remaining_elements ? 1 : 0);
       threads.emplace_back([&, t, start, end]() {
@@ -150,7 +148,8 @@ double knn::compute_performance(std::vector<data *> *d)
       printf("Progress: [ %.3f %% ] ", ((double)parsed / (double)d->size()) * 100.0);
       fflush(stdout);
     }
-  printf("\nValidation complete :: Accuracy: [ %.3f %% ] k = [%d]", ((double)correct / (double)d->size()) * 100.0, k);
+  printf("\33[2K\r");
+  printf("\r[ Completed - k: [ %d ] ] :: Accuracy : [ %.3f %% ] \n", k, ((double)correct / (double)d->size()) * 100.0);
   return ((double)correct / (double)d->size());
 }
 
