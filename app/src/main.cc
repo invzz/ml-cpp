@@ -30,7 +30,6 @@ int main()
   std::cout << "number of threads: " << KNN_NUM_OF_THREADS << std::endl;
   mnist *dh = new mnist();
   dh->read_feature_vector(TRAINING_IMAGES_FILE);
-
   dh->read_feature_labels(TRAINING_LABELS_FILE);
   dh->split_data();
   dh->count_classes();

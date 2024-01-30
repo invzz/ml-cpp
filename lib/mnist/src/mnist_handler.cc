@@ -1,5 +1,7 @@
 #include "mnist_handler.hh"
 #include "data.hh"
+#include <time.h>
+#include <random>
 
 mnist::mnist()
 {
@@ -116,15 +118,31 @@ void mnist::read_feature_labels(std::string path)
 
 void mnist::fill_random(std::vector<data *> *vec, int num_samples, std::unordered_set<int> *used_indexes)
 {
-  int count = 0;
+  int                                    count = 0;
+  std::random_device                     rd;
+  std::mt19937                           mt(rd());
+  std::uniform_real_distribution<double> dist(0, data_array->size());
+
   while(count < num_samples)
     {
-      int rnd_index = rand() % data_array->size();
+      int rnd_index = dist(mt);
       if(used_indexes->find(rnd_index) == used_indexes->end())
         {
           vec->push_back(data_array->at(rnd_index));
+          printf("\33[2K\r");
+          printf("Filling random: [ %d/%d ] used indexes count [%d]", count + 1, num_samples,
+                 (int)used_indexes->size());
+          fflush(stdout);
           used_indexes->insert(rnd_index);
           count++;
+        }
+      else
+        {
+          printf("\rFilling random: [ %d/%d ] used indexes count [%d]", count + 1, num_samples,
+                 (int)used_indexes->size());
+          printf(" : Element at %d already there! [%d / %d] - [%d]  ", rnd_index, count + 1, num_samples,
+                 (int)used_indexes->size());
+          continue;
         }
     }
 }

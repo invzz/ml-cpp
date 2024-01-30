@@ -7,13 +7,6 @@ include(cmake/automate-vcpkg.cmake)
 vcpkg_bootstrap()
 vcpkg_integrate_install()
 
-IF (WIN32)
-  # set stuff for windows
-  find_package(pthread REQUIRED)
-ELSE()
-  # set stuff for other systems
-ENDIF()
-    
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/dist)
 
 include(cmake/init.cmake)

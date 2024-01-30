@@ -3,13 +3,6 @@ set(LIB_NAME mnist_handler)
 
 project(${LIB_NAME})
 
-IF (WIN32)
-  # set stuff for windows
-  find_package(pthread REQUIRED)
-  set(DEPENDSON PThreads4W::PThreads4W)
-ELSE()
-ENDIF()
-
 MESSAGE(STATUS "data: ${LIB_DIR}/data_model/inc")
 
 include_directories(
