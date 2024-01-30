@@ -1,6 +1,6 @@
-set(APP_NAME etl)
+set(LIB_NAME thread_queue)
 
-project(${APP_NAME})
+project(${LIB_NAME})
 
 add_definitions(-DTRAINING_IMAGES_FILE="${RES_DIR}/train-images.idx3-ubyte")
 add_definitions(-DTRAINING_LABELS_FILE="${RES_DIR}/train-labels.idx1-ubyte")
@@ -10,18 +10,14 @@ message(STATUS "TRAINING_LABELS_FILE: ${RES_DIR}/train-labels.idx1-ubyte")
 message(STATUS "KNN_DISTANCE: KNN_EUCLID")
 include_directories(
     BEFORE
-    ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/inc
-    ${LIB_DIR}/mnist/inc
-    ${LIB_DIR}/knn/inc
-    ${LIB_DIR}/data_model/inc
 )
 
-set(DEPENDSON ${DEPENDSON} mnist_handler knn data_model)
-set(SRC ${PROJECT_SOURCE_DIR}/src/main.cc )
-set(INC ${PROJECT_SOURCE_DIR}/inc/main.hh )
-add_executable(${APP_NAME} ${SRC} ${INC} )
+#set(DEPENDSON ${DEPENDSON} mnist_handler knn data_model)
+set(INC ${PROJECT_SOURCE_DIR}/inc/${LIB_NAME}.hh )
+add_library(${LIB_NAME} INTERFACE ${INC} )
+
 if(DEFINED DEPENDSON)
-    MESSAGE(STATUS "${APP_NAME} resolbing dependencies...: ${DEPENDSON}")
-    target_link_libraries(${APP_NAME} ${DEPENDSON}) 
+    MESSAGE(STATUS "${LIB_NAME} resolving dependencies...: ${DEPENDSON}")
+    target_link_libraries(${LIB_NAME} ${DEPENDSON}) 
 endif()

@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 3.1...3.28)
 project(MNIST VERSION  0.5 LANGUAGES CXX)
 
 
+
 include(cmake/automate-vcpkg.cmake)
 vcpkg_bootstrap()
 vcpkg_integrate_install()
+
 IF (WIN32)
   # set stuff for windows
   find_package(pthread REQUIRED)

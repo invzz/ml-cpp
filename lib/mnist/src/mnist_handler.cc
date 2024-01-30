@@ -1,4 +1,4 @@
-#include "data_handler.hh"
+#include "mnist_handler.hh"
 #include "data.hh"
 
 data_handler::data_handler()
@@ -50,13 +50,14 @@ void data_handler::read_feature_vector(std::string path)
   int num_cols   = header[3];
   int image_size = num_cols * num_rows;
   printf("\33[2K\r");
-  printf("\rMagic: %dNum Images: %dNum Rows: %dNum Cols: %dImage Size: %d", magic, num_images, num_rows, num_cols,
-         image_size);
+  fflush(stdout);
 
   for(int i = 0; i < num_images; i++)
     {
       data   *d = new data();
       uint8_t element[1];
+      printf("\rReading images: [ %d/%d ]", i + 1, num_images);
+      fflush(stdout);
       for(int j = 0; j < image_size; j++)
         {
           if(fread(element, sizeof(element), 1, file)) { d->append_to_feature_vector(element[0]); }
@@ -69,13 +70,14 @@ void data_handler::read_feature_vector(std::string path)
       data_array->push_back(d);
     }
   printf("\33[2K\r");
-  printf("\rDone getting images into data array\n");
+  printf("\rDone getting images.\n");
+  fflush(stdout);
 }
 
 void data_handler::read_feature_labels(std::string path)
 {
   uint32_t      header[2];
-  unsigned char bytes[2];
+  unsigned char bytes[4];
   FILE         *file = fopen(path.c_str(), "rb");
 
   if(file == NULL)
@@ -84,29 +86,32 @@ void data_handler::read_feature_labels(std::string path)
       exit(1);
     }
 
-  for(int i = 0; i < 4; i++)
+  for(int i = 0; i < 2; i++)
     {
       if(fread(bytes, sizeof(bytes), 1, file)) { header[i] = convert_to_little_endian(bytes); }
     }
-  printf("\33[2K\r");
-  printf("\rDone getting lable file header");
 
   int magic     = header[0];
   int num_items = header[1];
 
+  printf("\33[2K\r");
+  printf("\rDone getting lable file header");
+  fflush(stdout);
+
   for(int i = 0; i < num_items; i++)
     {
-      data   *d = new data();
       uint8_t element[1];
-      if(fread(element, sizeof(element), 1, file)) { d->set_label(element[0]); }
-      else
+
+      if(fread(element, sizeof(element), 1, file))
         {
-          printf("Error reading image\n");
-          exit(1);
+          printf("\rReading items: [ %d/%d ]", i + 1, num_items);
+          fflush(stdout);
+          data_array->at(i)->set_label(element[0]);
         }
     }
   printf("\33[2K\r");
-  printf("\rDone getting lables.");
+  printf("\rDone getting lables.\n");
+  fflush(stdout);
 }
 
 void data_handler::fill_random(std::vector<data *> *vec, int num_samples, std::unordered_set<int> *used_indexes)
@@ -138,7 +143,7 @@ void data_handler::split_data()
 
   printf("\33[2K\r");
   printf("\rDone splitting data.");
-  printf("\nTraining size: %d\nTesting size: %d\nValidation size: %d\n", training_data->size(), testing_data->size(),
+  printf("\nTraining size: %zu\nTesting size: %zu\nValidation size: %zu\n", training_data->size(), testing_data->size(),
          validation_data->size());
 }
 
@@ -149,6 +154,8 @@ void data_handler::count_classes()
     {
       if(class_map.find(data_array->at(i)->get_label()) == class_map.end())
         {
+          printf("\rCounting classes: [ %d/%zu ]", i + 1, data_array->size());
+          fflush(stdout);
           class_map[data_array->at(i)->get_label()] = count;
           data_array->at(i)->set_enumerated_label(count);
           count++;
