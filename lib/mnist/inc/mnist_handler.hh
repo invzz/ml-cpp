@@ -1,5 +1,5 @@
-#ifndef _DATA_HANDLER_H_
-#define _DATA_HANDLER_H_
+#ifndef _mnist_H_
+#define _mnist_H_
 #include "data.hh"
 #include "stdint.h"
 #include "stdio.h"
@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <vector>
 
-class data_handler
+class mnist
 {
   const double TRAIN_SET_PERCENT      = 0.75;
   const double TEST_SET_PERCENT       = 0.20;
@@ -25,8 +25,8 @@ class data_handler
   std::map<uint8_t, int> class_map; // maps the class to an integer
 
   public:
-  data_handler();
-  ~data_handler();
+  mnist();
+  ~mnist();
 
   void read_feature_vector(std::string path);
   void read_feature_labels(std::string path);

@@ -1,8 +1,13 @@
 #ifndef _H_KNN_
 #define _H_KNN_
 
-#include "data.hh"
+#ifndef NUM_OF_THREADS
+#define NUM_OF_THREADS 20
+#endif
 
+
+#include "data.hh"
+#include <mutex>
 #include <vector>
 
 class knn
@@ -16,6 +21,7 @@ class knn
   double compute_performance(std::vector<data *> *);
 
   public:
+  std::mutex vector_mutex;
   knn(int);
   knn(int, std::vector<data *> *, std::vector<data *> *, std::vector<data *> *);
   knn();

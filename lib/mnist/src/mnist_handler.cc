@@ -1,7 +1,7 @@
 #include "mnist_handler.hh"
 #include "data.hh"
 
-data_handler::data_handler()
+mnist::mnist()
 {
   data_array              = new std::vector<data *>();
   training_data           = new std::vector<data *>();
@@ -11,13 +11,13 @@ data_handler::data_handler()
   get_feature_vector_size = 0;
 }
 
-std::vector<data *> *data_handler::get_training_data() { return training_data; }
+std::vector<data *> *mnist::get_training_data() { return training_data; }
 
-std::vector<data *> *data_handler::get_testing_data() { return testing_data; }
+std::vector<data *> *mnist::get_testing_data() { return testing_data; }
 
-std::vector<data *> *data_handler::get_validation_data() { return validation_data; }
+std::vector<data *> *mnist::get_validation_data() { return validation_data; }
 
-data_handler::~data_handler()
+mnist::~mnist()
 {
   delete data_array;
   delete training_data;
@@ -25,7 +25,7 @@ data_handler::~data_handler()
   delete validation_data;
 }
 
-void data_handler::read_feature_vector(std::string path)
+void mnist::read_feature_vector(std::string path)
 {
   uint32_t      header[4];
   unsigned char bytes[4];
@@ -74,7 +74,7 @@ void data_handler::read_feature_vector(std::string path)
   fflush(stdout);
 }
 
-void data_handler::read_feature_labels(std::string path)
+void mnist::read_feature_labels(std::string path)
 {
   uint32_t      header[2];
   unsigned char bytes[4];
@@ -114,7 +114,7 @@ void data_handler::read_feature_labels(std::string path)
   fflush(stdout);
 }
 
-void data_handler::fill_random(std::vector<data *> *vec, int num_samples, std::unordered_set<int> *used_indexes)
+void mnist::fill_random(std::vector<data *> *vec, int num_samples, std::unordered_set<int> *used_indexes)
 {
   int count = 0;
   while(count < num_samples)
@@ -129,7 +129,7 @@ void data_handler::fill_random(std::vector<data *> *vec, int num_samples, std::u
     }
 }
 
-void data_handler::split_data()
+void mnist::split_data()
 {
   int num_training = data_array->size() * TRAIN_SET_PERCENT;
   int num_testing  = data_array->size() * TEST_SET_PERCENT;
@@ -147,7 +147,7 @@ void data_handler::split_data()
          validation_data->size());
 }
 
-void data_handler::count_classes()
+void mnist::count_classes()
 {
   int count = 0;
   for(int i = 0; i < data_array->size(); i++)
@@ -163,7 +163,7 @@ void data_handler::count_classes()
     }
 }
 
-uint32_t data_handler::convert_to_little_endian(const unsigned char *bytes)
+uint32_t mnist::convert_to_little_endian(const unsigned char *bytes)
 {
   return (uint32_t)((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]);
 }

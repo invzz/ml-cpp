@@ -3,6 +3,7 @@
 #include <map>
 #include <iostream>
 #include <algorithm>
+#include <execution>
 #include <thread>
 #include "stdint.h"
 #include "mnist_handler.hh"
@@ -48,12 +49,11 @@ void knn::find_k_nearest_neighbors(data *d)
     return euclidean_distance(d1, d2);
   };
 
-  // Number of threads
-  const unsigned num_threads = 20;
+
   // Split the loop into chunks for each thread
-  const unsigned chunk_size = training_data->size() / num_threads;
+  const unsigned chunk_size = training_data->size() / NUM_OF_THREADS;
   // Calculate the chunk size and the number of remaining elements
-  const unsigned remaining_elements = training_data->size() % num_threads;
+  const unsigned remaining_elements = training_data->size() % NUM_OF_THREADS;
   // Vector to store threads
   std::vector<std::thread> threads;
   // Mutex for protecting vector modifications
@@ -61,66 +61,38 @@ void knn::find_k_nearest_neighbors(data *d)
 
   unsigned start = 0;
 
-  for(unsigned t = 0; t < num_threads; ++t)
+  // Using std::for_each with parallel execution policy
+  for(unsigned t = 0; t < NUM_OF_THREADS; ++t)
     {
       unsigned end = start + chunk_size + (t < remaining_elements ? 1 : 0);
-
       threads.emplace_back([&, t, start, end]() {
-        for(unsigned curr_k = 0; curr_k < k; ++curr_k)
+        for(unsigned i = start; i < end; ++i)
           {
-            if(curr_k == 0)
+            double distance = calculate_distance(d, training_data->at(i));
+
+            training_data->at(i)->set_distance(distance);
+
+            // Lock the vector before modification
+            std::lock_guard<std::mutex> lock(vector_mutex);
+
+            // Compare distances directly and add to neighbors vector
+            if(neighbors->size() < k || distance < neighbors->back()->get_distance())
               {
-                for(unsigned i = start; i < end; ++i)
-                  {
-                    double distance = calculate_distance(d, training_data->at(i));
-                    training_data->at(i)->set_distance(distance);
-
-                    // Lock the vector before modification
-                    std::lock_guard<std::mutex> lock(vector_mutex);
-                    if(distance < min)
-                      {
-                        min   = distance;
-                        index = i;
-                      }
-                  }
-
-                // Lock the vector before modification
-                std::lock_guard<std::mutex> lock(vector_mutex);
-                neighbors->push_back(training_data->at(index));
-                previous_min = min;
-                min          = std::numeric_limits<double>::max();
-              }
-            else
-              {
-                for(unsigned i = start; i < end; ++i)
-                  {
-                    double distance = training_data->at(i)->get_distance();
-
-                    // Lock the vector before modification
-                    std::lock_guard<std::mutex> lock(vector_mutex);
-                    if(distance < min && distance > previous_min)
-                      {
-                        min   = distance;
-                        index = i;
-                      }
-                  }
-
-                // Lock the vector before modification
-                std::lock_guard<std::mutex> lock(vector_mutex);
-                neighbors->push_back(training_data->at(index));
-                previous_min = min;
-                min          = std::numeric_limits<double>::max();
+                neighbors->push_back(training_data->at(i));
               }
           }
       });
-
       start = end;
     }
-
   // Wait for all threads to finish
   for(auto &thread : threads) { thread.join(); }
 
-  return;
+  // Sort the neighbors vector based on distances
+  std::sort(neighbors->begin(), neighbors->end(),
+            [](data *a, data *b) { return a->get_distance() < b->get_distance(); });
+
+  // Resize the vector to keep only the k nearest neighbors
+  neighbors->resize(std::min((size_t)k, neighbors->size()));
 }
 
 void knn::set_k(int val) { k = val; }
@@ -152,7 +124,7 @@ int knn::predict()
           klass    = it.first;
         }
     }
-  neighbors->clear();
+  delete(neighbors);
   return klass;
 }
 
