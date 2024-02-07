@@ -30,3 +30,18 @@ std::vector<uint8_t> *data::get_feature_vector() { return feature_vector; }
 
 double data::get_distance() { return distance; }
 
+void data::print_ascii_img()
+{
+  printf("-------------------------\n");
+  for(int j = 0; j < feature_vector->size(); j++)
+    {
+      if(j > 0 && j % 28 == 0)
+        {
+          printf("\n");
+          fflush(stdout);
+        }
+      printf("%*s", 2, feature_vector->at(j) > 0 ? "#" : " ");
+      fflush(stdout);
+    }
+  printf("\n-------------------------\n");
+}

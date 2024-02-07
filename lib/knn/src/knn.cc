@@ -6,7 +6,7 @@
 #include <execution>
 #include <thread>
 #include <chrono>
-
+#include <mutex>
 #include "stdint.h"
 #include "mnist_handler.hh"
 
@@ -24,17 +24,21 @@ double euclidean_distance(data *query_point, data *input)
     }
   return sqrt(distance);
 }
+
 knn::knn(int value) { k = value; }
+
 knn::knn(int k_val, std::vector<data *> *training, std::vector<data *> *test, std::vector<data *> *validation)
 {
   set_k(k_val);
-  set_training_data(training);
-  set_test_data(test);
-  set_validation_data(validation);
+  training_data   = training;
+  test_data       = test;
+  validation_data = validation;
 }
+
 knn::~knn()
 { // Nothing to do.
 }
+
 knn::knn() { k = 0; }
 
 void knn::find_k_nearest_neighbors(data *d)
@@ -96,12 +100,6 @@ void knn::find_k_nearest_neighbors(data *d)
 }
 
 void knn::set_k(int val) { k = val; }
-
-void knn::set_training_data(std::vector<data *> *data) { training_data = data; }
-
-void knn::set_test_data(std::vector<data *> *data) { test_data = data; }
-
-void knn::set_validation_data(std::vector<data *> *data) { validation_data = data; }
 
 int knn::predict()
 {
@@ -174,7 +172,8 @@ double knn::compute_performance(std::vector<data *> *d)
   return ((double)correct / (double)d->size());
 }
 
-double knn::compute_test_performance() { return compute_performance(test_data); }
-double knn::compute_validation_performance() { return compute_performance(validation_data); }
+inline double knn::compute_test_performance() { return compute_performance(test_data); }
+
+inline double knn::compute_validation_performance() { return compute_performance(validation_data); }
 
 // 10 e/s , 100 e

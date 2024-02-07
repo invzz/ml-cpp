@@ -1,5 +1,5 @@
-#ifndef _DATA__H_
-#define _DATA__H_
+#ifndef _DATA_M_H_
+#define _DATA_M_H_
 #include "stdint.h"
 #include "stdio.h"
 #include <vector>
@@ -11,7 +11,7 @@ class data
   uint8_t               label;
   int                   enum_label;
   double                distance;
- 
+
   public:
   data();
   ~data();
@@ -28,6 +28,7 @@ class data
   std::vector<uint8_t> *get_feature_vector();
   double                get_distance();
 
+  void print_ascii_img();
 };
 
 #endif

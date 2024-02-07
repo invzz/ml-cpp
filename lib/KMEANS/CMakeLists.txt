@@ -1,4 +1,4 @@
-set(LIB_NAME knn)
+set(LIB_NAME kmeans)
 project(${LIB_NAME})
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/inc
@@ -10,10 +10,9 @@ set(DEPENDSON data_model)
 set(SRC ${PROJECT_SOURCE_DIR}/src/${LIB_NAME}.cc)
 set(INC ${PROJECT_SOURCE_DIR}/inc/${LIB_NAME}.hh)
 add_library(${LIB_NAME} ${SRC} ${INC})
+add_subdirectory(${LIB_DIR}/KMEANS/example)
 
 if(DEFINED DEPENDSON)
     MESSAGE(STATUS "[ ${LIB_NAME} ] resolving dependencies...: ${DEPENDSON}")
     target_link_libraries(${LIB_NAME} ${DEPENDSON})
 endif()
-
-add_subdirectory(${LIB_DIR}/KNN/example)

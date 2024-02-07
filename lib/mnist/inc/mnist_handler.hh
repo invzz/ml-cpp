@@ -10,9 +10,7 @@
 
 class mnist
 {
-
-
-  std::vector<data *> *data_array;      // all of the data before splitting
+  std::vector<data *> *data_array;      // all of the data from the source
   std::vector<data *> *training_data;   // training data
   std::vector<data *> *testing_data;    // testing data
   std::vector<data *> *validation_data; // validation data
@@ -31,6 +29,9 @@ class mnist
 
   void split_data();
   void count_classes();
+  void fill();
+
+  int get_class_counts();
 
   uint32_t convert_to_little_endian(const unsigned char *bytes);
 
