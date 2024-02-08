@@ -6,12 +6,12 @@
 
 mnist::mnist()
 {
-  data_array              = new std::vector<data *>();
-  training_data           = new std::vector<data *>();
-  testing_data            = new std::vector<data *>();
-  validation_data         = new std::vector<data *>();
-  num_classes             = 0;
-  get_feature_vector_size = 0;
+  data_array          = new std::vector<data *>();
+  training_data       = new std::vector<data *>();
+  testing_data        = new std::vector<data *>();
+  validation_data     = new std::vector<data *>();
+  num_classes         = 0;
+  feature_vector_size = 0;
 }
 
 std::vector<data *> *mnist::get_training_data() { return training_data; }

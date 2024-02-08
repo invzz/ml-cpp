@@ -10,23 +10,32 @@ data::data()
 
 data::~data() { delete feature_vector; }
 
-void data::set_feature_vector(std::vector<uint8_t> *v) { feature_vector = v; }
-
 void data::append_to_feature_vector(uint8_t value) { feature_vector->push_back(value); }
+void data::append_to_feature_vector(double value) { NormalizedFeatureVector->push_back(value); }
 
 void data::set_label(uint8_t value) { label = value; }
-
 void data::set_enumerated_label(int value) { enum_label = value; }
-
 void data::set_distance(double value) { distance = value; }
+void data::set_class_vector(int count)
+{
+  class_vector = new std::vector<int>();
+  for(int i = 0; i < count; i++)
+    {
+      if(i == label)
+        class_vector->push_back(1);
+      else
+        class_vector->push_back(0);
+    }
+}
+void data::set_feature_vector(std::vector<uint8_t> *v) { feature_vector = v; }
+void data::set_feature_vector(std::vector<double> *v) { NormalizedFeatureVector = v; }
 
-int data::get_feature_vector_size() { return feature_vector->size(); }
-
-uint8_t data::get_label() { return label; }
-
-uint8_t data::get_enumerated_label() { return enum_label; }
-
+int                   data::get_feature_vector_size() { return feature_vector->size(); }
+uint8_t               data::get_label() { return label; }
+uint8_t               data::get_enumerated_label() { return enum_label; }
 std::vector<uint8_t> *data::get_feature_vector() { return feature_vector; }
+std::vector<int>     *data::get_class_vector() { return class_vector; }
+std::vector<double>  *data::get_NormalizedFeatureVector() { return NormalizedFeatureVector; }
 
 double data::get_distance() { return distance; }
 

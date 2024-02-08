@@ -1,5 +1,5 @@
-#ifndef _mnist_H_
-#define _mnist_H_
+#ifndef _iris_H_
+#define _iris_H_
 #include "data.hh"
 #include "stdint.h"
 #include "stdio.h"
@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <vector>
 
-class mnist
+class iris
 {
   std::vector<data *> *data_array;      // all of the data from the source
   std::vector<data *> *training_data;   // training data
@@ -18,22 +18,18 @@ class mnist
   int num_classes;
   int feature_vector_size;
 
-  std::map<uint8_t, int> class_map; // maps the class to an integer
+  std::map<std::string, int> class_map; // maps the class to an integer
 
   public:
-  mnist();
-  ~mnist();
-
-  void read_feature_vector(std::string path);
-  void read_feature_labels(std::string path);
+  iris();
+  ~iris();
+  void read_csv(std::string path, std::string delimiter = ",");
 
   void split_data();
-  void count_classes();
   void fill();
-
-  int get_class_counts();
-
-  uint32_t convert_to_little_endian(const unsigned char *bytes);
+  int  get_class_counts();
+  int count_classes();
+  void normalize();
 
   std::vector<data *> *get_training_data();
   std::vector<data *> *get_testing_data();
