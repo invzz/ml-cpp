@@ -21,6 +21,6 @@ set(INC ${PROJECT_SOURCE_DIR}/inc/main.hh)
 add_executable(${APP_NAME} ${SRC} ${INC})
 
 if(DEFINED DEPENDSON)
-    MESSAGE(STATUS "[ ${APP_NAME} ] resolbing dependencies...: ${DEPENDSON}")
+    MESSAGE(STATUS "[ ${APP_NAME} ]  dependencies...: ${DEPENDSON}")
     target_link_libraries(${APP_NAME} ${DEPENDSON})
 endif()

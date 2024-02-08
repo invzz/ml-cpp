@@ -4,6 +4,7 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <omp.h>
 
 template <typename T> T random(T range_from, T range_to)
 {
@@ -61,49 +62,43 @@ void kmeans::init_clusters_for_each_class()
 
 void kmeans::train()
 {
-  int                       count               = 0;
-  std::vector<data *>      &local_training_data = *training_data;
-  std::vector<cluster_t *> &local_clusters      = *clusters;
-  std::atomic<int>          count_atomic(0);
+  printf("\n");
+#pragma omp parallel
+  {
+    int total_data_size = training_data->size();
+    int num_threads     = omp_get_num_threads();
+    int thread_id       = omp_get_thread_num();
+    int chunk_size      = (total_data_size + num_threads - 1) / num_threads;
+    int start_index     = thread_id * chunk_size;
+    int end_index       = std::min((thread_id + 1) * chunk_size, total_data_size);
 
-  std::vector<std::thread> threads;
-  for(int t = 0; t < KNN_NUM_OF_THREADS; ++t)
-    {
-      threads.emplace_back([&]() {
-        int local_count = 0;
-        for(int idx = t; idx < local_training_data.size(); idx += KNN_NUM_OF_THREADS)
+    for(int index = start_index; index < end_index; ++index)
+      {
+        data  *point        = training_data->at(index);
+        double min_distance = std::numeric_limits<double>::max();
+        int    best_cluster = 0;
+
+        // Find the nearest cluster for the current point
+        for(int i = 0; i < clusters->size(); ++i)
           {
-            auto   point        = local_training_data[idx];
-            double min_distance = std::numeric_limits<double>::max();
-            int    best_cluster = 0;
-            for(int i = 0; i < local_clusters.size(); ++i)
+            double distance = euclidean_distance(clusters->at(i)->centroid, point);
+            if(distance < min_distance)
               {
-                double distance = euclidean_distance(local_clusters[i]->centroid, point);
-                if(distance < min_distance)
-                  {
-                    min_distance = distance;
-                    best_cluster = i;
-                  }
+                min_distance = distance;
+                best_cluster = i;
               }
-            {
-              std::lock_guard<std::mutex> lock(mutex);
-              local_clusters[best_cluster]->add_data_to_cluster(point);
-              used_indexes->insert(point->get_label());
-              local_count++;
-            }
           }
-        count_atomic += local_count;
-        std::cout << "\rTraining: [ " << count_atomic << "/" << local_training_data.size()
-                  << " ] => num clusters : " << local_clusters.size();
-        fflush(stdout);
-      });
-    }
 
-  for(auto &thread : threads) { thread.join(); }
-
-  count = count_atomic.load();
-
-  printf("\33[2K\r");
+          // Add the point to the best cluster
+#pragma omp critical
+        {
+          clusters->at(best_cluster)->add_data_to_cluster(point);
+          used_indexes->insert(index);
+          std::cout << "\rTraining : [ " << used_indexes->size() << " / " << total_data_size << " ] - " << thread_id
+                    << " / " << num_threads << std::flush;
+        }
+      }
+  }
 }
 
 double kmeans::euclidean_distance(std::vector<double> *a, data *b)
