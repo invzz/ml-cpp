@@ -6,13 +6,12 @@ include_directories(
     BEFORE
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/inc
-    ${LIB_DIR}/mnist/inc
-    ${LIB_DIR}/knn/inc
-    ${LIB_DIR}/kmeans/inc
+    ${LIB_DIR}/iris/inc
+    ${LIB_DIR}/NEURAL_NETWORK/inc
     ${LIB_DIR}/data_model/inc
 )
 
-set(DEPENDSON ${DEPENDSON} data_model mnist_handler knn kmeans)
+set(DEPENDSON ${DEPENDSON} data_model iris_handler neural_network)
 set(SRC ${PROJECT_SOURCE_DIR}/src/main.cc)
 set(INC ${PROJECT_SOURCE_DIR}/inc/main.hh)
 add_executable(${APP_NAME} ${SRC} ${INC})

@@ -7,9 +7,9 @@
 class Neuron
 {
   public:
-  double               output;
-  double               delta;
-  std::vector<double> *weights;
+  double              output;
+  double              delta;
+  std::vector<double> weights;
 
   Neuron(int prevLayerSize, int currentLayerSize);
   ~Neuron();

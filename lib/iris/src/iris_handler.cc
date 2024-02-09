@@ -29,35 +29,6 @@ iris::~iris()
   delete validation_data;
 }
 
-void iris::fill_random(std::vector<data *> *vec, int num_samples, std::unordered_set<int> *used_indexes)
-{
-  int                                    count = 0;
-  std::random_device                     rd;
-  std::mt19937                           mt(rd());
-  std::uniform_real_distribution<double> dist(0, data_array->size());
-
-  while(count < num_samples)
-    {
-      int rnd_index = dist(mt);
-      if(used_indexes->find(rnd_index) == used_indexes->end())
-        {
-          vec->push_back(data_array->at(rnd_index));
-          printf("\33[2K\r");
-          printf("Filling random: [ %d/%d ] used indexes count [%d]", count + 1, num_samples,
-                 (int)used_indexes->size());
-          fflush(stdout);
-          used_indexes->insert(rnd_index);
-          count++;
-        }
-      else
-        {
-          printf("\rFilling random: [ %d/%d ] used indexes count [%d]", count + 1, num_samples,
-                 (int)used_indexes->size());
-          printf(" : [ %d ] skipped [%d / %d] - [%d]  ", rnd_index, count + 1, num_samples, (int)used_indexes->size());
-          continue;
-        }
-    }
-}
 void iris::split_data()
 {
   int num_training = data_array->size() * TRAIN_SET_PERCENT;
@@ -84,24 +55,14 @@ void iris::split_data()
   printf("\nTraining size: %zu\nTesting size: %zu\nValidation size: %zu\n", training_data->size(), testing_data->size(),
          validation_data->size());
 }
-void iris::fill()
-{
-  training_data->clear();
-  for(int i = 0; i < data_array->size(); i++) { training_data->push_back(data_array->at(i)); }
-}
-int iris::count_classes()
-{
-  // todo  return 0;
-  return 0;
-}
 
 void iris::normalize()
 {
   std::vector<double> mins, maxs;
+  // fill min and max lists
 
   data *d = data_array->at(0);
-
-  for(auto val : *d->get_feature_vector())
+  for(auto val : *d->get_NormalizedFeatureVector())
     {
       mins.push_back(val);
       maxs.push_back(val);
@@ -110,33 +71,28 @@ void iris::normalize()
   for(int i = 1; i < data_array->size(); i++)
     {
       d = data_array->at(i);
-      for(int j = 0; j < d->get_feature_vector()->size(); j++)
+      for(int j = 0; j < d->get_NormalizedFeatureVector()->size(); j++)
         {
-          double value = d->get_feature_vector()->at(j);
-          if(value < mins[j]) { mins[j] = value; }
-          if(value > maxs[j]) { maxs[j] = value; }
+          double value = (double)d->get_NormalizedFeatureVector()->at(j);
+          if(value < mins.at(j)) mins[j] = value;
+          if(value > maxs.at(j)) maxs[j] = value;
         }
     }
+  // normalize data array
 
   for(int i = 0; i < data_array->size(); i++)
     {
-      d = data_array->at(i);
-      d->set_feature_vector(new std::vector<double>());
-      d->set_class_vector(num_classes);
-      for(int j = 0; j < d->get_feature_vector()->size(); j++)
+      data_array->at(i)->set_NormalizedFeatureVector(new std::vector<double>());
+      data_array->at(i)->set_class_vector(num_classes);
+      for(int j = 0; j < data_array->at(i)->get_NormalizedFeatureVector()->size(); j++)
         {
-          if(maxs[j] - mins[j] == 0) { d->append_to_feature_vector(0.0); }
-          else { d->append_to_feature_vector((d->get_feature_vector()->at(j) - mins[j]) / (maxs[j] - mins[j])); }
+          if(maxs[j] - mins[j] == 0)
+            data_array->at(i)->append_to_feature_vector(0.0);
+          else
+            data_array->at(i)->append_to_feature_vector(
+              (double)(data_array->at(i)->get_NormalizedFeatureVector()->at(j) - mins[j]) / (maxs[j] - mins[j]));
         }
     }
-
-  // for(int i = 0; i < data_array->size(); i++)
-  //   {
-  //     std::vector<double> *fv = data_array->at(i)->get_NormalizedFeatureVector();
-  //     double               sum = 0;
-  //     for(int j = 0; j < fv->size(); j++) { sum += fv->at(j); }
-  //     for(int j = 0; j < fv->size(); j++) { fv->at(j) = fv->at(j) / sum; }
-  //   }
 }
 
 void iris::read_csv(std::string path, std::string delimiter)
@@ -148,7 +104,7 @@ void iris::read_csv(std::string path, std::string delimiter)
     {
       if(line.length() == 0) continue;
       data *d = new data();
-      d->set_feature_vector(new std::vector<double>());
+      d->set_NormalizedFeatureVector(new std::vector<double>());
       size_t      pos = 0;
       std::string token;
       while((pos = line.find(delimiter)) != std::string::npos)
@@ -166,6 +122,7 @@ void iris::read_csv(std::string path, std::string delimiter)
       else { d->set_label(class_map[line]); }
       data_array->push_back(d);
     }
+  for(auto d : *data_array) { d->set_class_vector(num_classes); }
   feature_vector_size = data_array->at(0)->get_NormalizedFeatureVector()->size();
 }
 

@@ -26,9 +26,7 @@ class iris
   void read_csv(std::string path, std::string delimiter = ",");
 
   void split_data();
-  void fill();
   int  get_class_counts();
-  int count_classes();
   void normalize();
 
   std::vector<data *> *get_training_data();

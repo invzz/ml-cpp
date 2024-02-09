@@ -7,9 +7,9 @@
 class Layer
 {
   public:
-  std::vector<Neuron *> *neurons;
-  std::vector<double>   *outputs;
-  int                    currentSize;
+  std::vector<Neuron *> neurons;
+  std::vector<double>  *outputs;
+  int                   currentSize;
   Layer(int prevSize, int currentSize);
   ~Layer();
 };

@@ -1,42 +1,33 @@
 #include "stdio.h"
-#include "mnist_handler.hh"
-#include "kmeans.hh"
+#include "iris_handler.hh"
+#include "network.hh"
 #include "common.hh"
 
 int main(int argc, char *argv[])
 {
-  mnist *m = new mnist();
-  m->read_feature_vector(RES_DIR "/mnist/train-images.idx3-ubyte");
-  m->read_feature_labels(RES_DIR "/mnist/train-labels.idx1-ubyte");
-  m->split_data();
-  m->count_classes();
-  double performance      = 0.0;
-  double best_performance = 0.0;
-  int    best_k           = 1;
-  int    training_size    = m->get_training_data()->size();
-  for(int k = 1000; k < 2000; k += 10)
-    {
-      kmeans *km = new kmeans(k);
-      km->set_training_data(m->get_training_data());
-      km->set_test_data(m->get_testing_data());
-      km->set_validation_data(m->get_validation_data());
-      km->init_clusters();
-      km->train();
-      performance = km->validate();
-      printf("- K: [ %d ], Performance: [ %.2f %% ]", k, performance);
-      if(performance > best_performance)
-        {
-          best_performance = performance;
-          best_k           = k;
-        }
-    }
-  kmeans *km = new kmeans(best_k);
-  km->set_training_data(m->get_training_data());
-  km->set_test_data(m->get_testing_data());
-  km->set_validation_data(m->get_validation_data());
-  km->init_clusters();
-  performance = km->test();
-  printf("- K: [ %d ], Performance: [ %.2f %% ]", best_k, performance);
+  iris *i = new iris();
+  i->read_csv(RES_DIR "/iris/iris.data");
+  i->split_data();
+
+  std::vector<int> hiddenLayerSpec = {10};
+  auto             inputSize       = i->get_training_data()->at(0)->get_NormalizedFeatureVector()->size();
+  auto             numClasses      = i->get_class_counts();
+  auto             learningRate    = .01;
+
+  auto lamda = [&](double learningRate = .95, int epochs = 100) {
+    Network *net = new Network(hiddenLayerSpec, inputSize, numClasses, learningRate);
+    net->set_training_data(i->get_training_data());
+    net->set_test_data(i->get_testing_data());
+    net->set_validation_data(i->get_validation_data());
+    net->train(epochs);
+    net->validate();
+    double val  = net->validate();
+    double test = net->test();
+    printf("\repochs -> [ %d ] Validation: [ %3.3f%% ] Test: [ %3.3f%% ]", epochs, val * 100, test * 100);
+  };
+
+  lamda(learningRate, 1000);
+  printf("- Learning rate: %2.2f\n", learningRate);
 
   return 0;
 }

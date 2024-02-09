@@ -19,7 +19,7 @@ class data
   data();
   ~data();
   void set_feature_vector(std::vector<uint8_t> *);
-  void set_feature_vector(std::vector<double> *);
+  void set_NormalizedFeatureVector(std::vector<double> *v);
 
   void append_to_feature_vector(uint8_t);
   void append_to_feature_vector(double);
@@ -32,7 +32,7 @@ class data
 
   std::vector<uint8_t> *get_feature_vector();
   std::vector<double>  *get_NormalizedFeatureVector();
-  std::vector<int>     *get_class_vector();
+  std::vector<int>      get_class_vector();
 
   uint8_t get_label();
   uint8_t get_enumerated_label();

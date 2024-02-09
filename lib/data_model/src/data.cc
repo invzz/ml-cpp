@@ -28,13 +28,13 @@ void data::set_class_vector(int count)
     }
 }
 void data::set_feature_vector(std::vector<uint8_t> *v) { feature_vector = v; }
-void data::set_feature_vector(std::vector<double> *v) { NormalizedFeatureVector = v; }
+void data::set_NormalizedFeatureVector(std::vector<double> *v) { NormalizedFeatureVector = v; }
 
 int                   data::get_feature_vector_size() { return feature_vector->size(); }
 uint8_t               data::get_label() { return label; }
 uint8_t               data::get_enumerated_label() { return enum_label; }
 std::vector<uint8_t> *data::get_feature_vector() { return feature_vector; }
-std::vector<int>     *data::get_class_vector() { return class_vector; }
+std::vector<int>      data::get_class_vector() { return *class_vector; }
 std::vector<double>  *data::get_NormalizedFeatureVector() { return NormalizedFeatureVector; }
 
 double data::get_distance() { return distance; }
