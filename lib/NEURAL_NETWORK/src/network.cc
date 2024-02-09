@@ -21,10 +21,10 @@ Network::~Network()
   // for(auto layer : Layers) { delete layer; }
 }
 
-double Network::activate(std::vector<double> weights, std::vector<double> input)
+double Network::activate(Neuron *n, std::vector<double> input)
 {
-  double activation = weights.back(); // bias term
-  for(int i = 0; i < weights.size() - 1; i++) { activation += weights[i] * input[i]; }
+  double activation = n->weights.back(); // bias term
+  for(int i = 0; i < n->weights.size() - 1; i++) { activation += n->weights[i] * input[i]; }
   return activation;
 }
 
@@ -42,7 +42,7 @@ std::vector<double> Network::fprop(data *d)
       std::vector<double> newInputs;
       for(Neuron *n : layer->neurons)
         {
-          double activation = this->activate(n->weights, inputs);
+          double activation = this->activate(n, inputs);
           n->output         = this->transfer(activation);
           newInputs.push_back(n->output);
         }
@@ -110,7 +110,7 @@ int Network::predict(data *d)
   return std::distance(outputs.begin(), std::max_element(outputs.begin(), outputs.end()));
 }
 
-void Network::train(int epochs)
+void Network::train(int epochs, double min_error)
 {
   for(int i = 0; i < epochs; i++)
     {
@@ -126,8 +126,9 @@ void Network::train(int epochs)
           updateWeights(d);
         }
       printf("\33[2K\r");
-      printf("epoch: %d, error: %.4f", i, sum_error);
+      printf("epoch: [ %d ] :: squared error: [ %.4f ]", i, sum_error);
       fflush(stdout);
+      if(sum_error < min_error) { break; }
     }
 }
 
